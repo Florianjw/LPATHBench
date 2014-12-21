@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <ctime>
 #include <vector>
 #include <bitset>
@@ -28,19 +29,14 @@ vector<node> readPlaces(){
   return nodes;
 }
 
-template <int T>
-int getLongestPath(const vector<node> &nodes, const int nodeID, bitset<T> visited){
+template <std::size_t Size>
+int getLongestPath(const vector<node> &nodes, const int nodeID, bitset<Size> visited){
   visited[nodeID] = true;
-  int max=0;
-  for(const route &neighbour: nodes[nodeID].neighbours){
-    if (visited[neighbour.dest] == false){
-      const int dist = neighbour.cost + getLongestPath<T>(nodes, neighbour.dest, visited);
-      if (dist > max){
-        max = dist;
-      }
-    }
+  auto max=0;
+  for(const auto& neighbour: nodes[nodeID].neighbours){
+    if (visited[neighbour.dest]) continue;
+    max = std::max(max, neighbour.cost + getLongestPath<Size>(nodes, neighbour.dest, visited));
   }
-  visited[nodeID] = false;
   return max;
 }
 
@@ -63,11 +59,11 @@ int getLongestPath(const vector<node> &nodes)
   }
 }
 
-int main(int argc, char** argv){
-  auto nodes = readPlaces();
-  auto start = high_resolution_clock::now();
-  int len = getLongestPath(nodes);
-  auto end = high_resolution_clock::now();
-  auto duration = (int)(0.001 * duration_cast<microseconds>(end - start).count());
+int main(){
+  const auto nodes = readPlaces();
+  const auto start = high_resolution_clock::now();
+  const auto len = getLongestPath(nodes);
+  const auto end = high_resolution_clock::now();
+  const auto duration = (duration_cast<milliseconds>(end - start).count());
   cout << len << " LANGUAGE C++ " << duration << std::endl;
 }
